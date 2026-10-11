@@ -1,0 +1,41 @@
+# =============================================================================
+# DOCKER COMPOSE — Runs the full app (backend + frontend) with ONE command
+# =============================================================================
+services:
+
+  # ---------------------------------------------------------------------------
+  # BACKEND SERVICE — FastAPI Python app
+  # ---------------------------------------------------------------------------
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    env_file:
+      - ./backend/.env
+    environment:
+      - APP_ENV=production
+      - APP_HOST=0.0.0.0
+      - APP_PORT=8000
+    expose:
+      - "8000"
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:8000/" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # ---------------------------------------------------------------------------
+  # FRONTEND SERVICE — React app served by nginx
+  # nginx proxies /api/ calls → backend container
+  # ---------------------------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
