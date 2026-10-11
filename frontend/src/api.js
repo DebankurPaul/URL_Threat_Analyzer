@@ -1,4 +1,18 @@
-const BASE_URL = ''   // empty string = same host, nginx handles routing
+const BASE_URL = 'https://url-threat-analyzer-backend.onrender.com'   // empty string = same host, nginx handles routing
+
+async function parseJsonResponse(response) {
+    const text = await response.text()
+
+    if (!text) {
+        return null
+    }
+
+    try {
+        return JSON.parse(text)
+    } catch {
+        return null
+    }
+}
 
 export async function analyzeURL(url) {
     const response = await fetch(`${BASE_URL}/api/analyze`, {
